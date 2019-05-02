@@ -121,7 +121,91 @@ app.get('/cart/:id', (req, res) => {
     });
 });
 
-// updates a cart with id with items
+// add an item or update quantity o an item to cart
+app.post('/cart/:id', (req, res) => {
+    const customerid = parseInt(req.params.id);
+    const item = req.body.item;
+    const quantity = req.body.quantity;
+    const type = req.body.type;
+    if (type === 'add') {
+        db.addToCart(customerid, item, quantity, (err, result) => {
+            if (err) {
+                console.log("err");
+                console.log(err);
+                res.status(400).send({
+                    success: false
+                });
+            }
+            else {
+                res.status(200).send({
+                    success: true
+                });
+            }
+        });
+    } else if (type === 'update') { //update quantity of item
+        db.updateCart(customerid, item, quantity, (err, result) => {
+            if (err) {
+                console.log("err");
+                console.log(err);
+                res.status(400).send({
+                    success: false
+                });
+            }
+            else {
+                res.status(200).send({
+                    success: true
+                });
+            }
+        });
+    }
+});
+//delete item from cart id
+app.delete('/cart/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const item = req.body.item;
+    db.deleteFromCart(id, item, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.startus(200).send({
+                sucess: true
+            });
+        }
+    });
+});
+// create new order
+app.post('/order/:id', (req, res) => {
+    const customerid = parseInt(req.params.id);
+    const total = req.body.total;
+    const payment = req.body.payment;
+    const items = req.body.items;
+    db.createNewOrder(customerid, total, payment, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            console.log(result);
+            /*
+            items.forEach(item => {
+                addItemToOrder
+            });
+*/
+            res.status(200).send({
+                success: true
+            });
+        }
+    });
+});
+
 
 const PORT = 5000;
 

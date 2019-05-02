@@ -77,8 +77,8 @@ module.exports = {
     },
     // Get Cart by ID
     getCartByID: function (id, callback) {
-        const getIdQuery = 'SELECT * FROM Cart WHERE customer=?';
-        db.all(getIdQuery, [id], (err, rows) => {
+        const getCartQuery = 'SELECT * FROM Cart WHERE customer=?';
+        db.all(getCartQuery, [id], (err, rows) => {
             if (err) {
                 //console.log(err);
                 //throw err;//CATCH
@@ -95,7 +95,80 @@ module.exports = {
                 callback(null, cart);
             }
         });
-    }
+    },
 
-    
+    // Add an item to cart
+    addToCart: function (id, item, quantity, callback) {
+        const addToCartQuery = 'INSERT INTO cart (item,quantity,customer) VALUES (?,?,?)';
+        db.all(addToCartQuery, [item,quantity,id], (err, rows) => {
+            if (err) {
+                //console.log(err);
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
+
+    //update quantity of an item in cart
+    updateCart: function (id, item, quantity, callback) {
+        const query = 'UPDATE cart SET quantity = ? WHERE item = ? AND customer = ?';
+        db.all(query, [quantity,item,id], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
+
+    // detlet item from cart
+    deleteFromCart: function (id, item, callback) {
+        const query = 'DELETE FROM cart WHERE customer = ? AND item = ?';
+        db.all(query, [id, item], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
+    //create new order and resturns that new order's id
+    createNewOrder: function (customer, total, payment, callback) {
+        const query = 'INSERT INTO orders (customer,total,payment) VALUES (?,?,?)';
+        const query2 = 'SELECT last_insert_rowid()';
+        db.all(query, [customer, total, payment], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                db.get(query2, [],(err, row) => {
+                    if (err) {
+                        callback(err);
+                    }
+                    else {
+                        //console.log(row);
+                        //console.log(row['last_insert_rowid()']);
+                        callback(null,row['last_insert_rowid()']);
+                    }
+                });
+            }
+        });
+    },
+    //add item to an order
+    addItemToOrder: function (itemid, orderid, quantity, callback) {
+        const query = 'INSERT INTO order (customer, total, payment) VALUES (?,?,?)'
+        db.all(query, [id, total, payment], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
+
 };
