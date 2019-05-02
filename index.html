@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Menu Sections</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+		integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+		integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
+	<link rel="stylesheet" href="tablelist.css" type="text/css" />
+
+</head>
+
+<body>
+	<div id="container">
+		<div id="first">
+			<div>
+				<div id="sectionModal" class="modal">
+					<div class="modal-content">
+						<span class="close">&times;</span>
+						<p>Add New section:</p>
+						<input id="newSection" type="text" name="fname"><br>
+						<button id="submitSection">Submit</button>
+					</div>
+				</div>
+				<div id="itemModal" class="modal">
+					<div class="modal-content">
+						<span class="close">&times;</span>
+						<p>Add New item:</p>
+						<input id="newItem" type="text" name="fname"><br>
+						<button id="submitItem">Submit</button>
+					</div>
+				</div>
+
+			</div>
+			<button id="addMenuSection">+</button>
+			<table id="table1" data-toggle="table" data-height="460" data-click-to-select="true"
+				data-single-select="true">
+				<thead>
+					<tr>
+						<th data-field="state" data-checkbox="true">
+						</th>
+						<th data-field="section">Menu Selections
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div id="second">
+			<button id="addItems">+</button>
+			<table id="table2" data-toggle="table">
+				<thead>
+					<tr>
+						<th data-field="items">Items
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+	integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+	integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+	crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+	integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+	crossorigin="anonymous"></script>
+<script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
+<script>
+	var menu = [];
+	var menuItems = [];
+	var items = [];
+	var sections = [];
+	window.onload = function () {
+		var modal = document.getElementById('sectionModal');
+		var itemModal = document.getElementById('itemModal');
+		var addMenuSectionButton = document.getElementById('addMenuSection');
+		var addItemButton = document.getElementById('addItems');
+		var span = document.getElementsByClassName('close')[0];
+		var span2 = document.getElementsByClassName('close')[1];
+		var table1 = document.getElementById('table1');
+		var $table1 = $('#table1');
+		var table2 = document.getElementById('table2');
+		var $table2 = $('#table2');
+		//var menu = ["Lunch", "Breakfast"];
+		//var menuItems = [["Eggs", "Bacon"], ["sandwich", "toast"]];
+		/*
+		var sections = []
+		menu.forEach(function (element) {
+			sections.push({
+				state: false,
+				section: element
+			})
+		});
+		$table1.bootstrapTable('load', sections)
+*/
+		addMenuSectionButton.onclick = function () {
+			modal.style.display = "block";
+		}
+		addItemButton.onclick = function () {
+			itemModal.style.display = "block";
+		}
+		table1.onclick = function () {
+			if ($table1.bootstrapTable('getSelections')[0] == null) {
+				$table2.bootstrapTable('removeAll');
+			}
+			else {
+				var selection = ($table1.bootstrapTable('getSelections')[0].section);
+				console.log(selection);
+				var index = menu.indexOf(selection);
+				items = []
+				console.log(menuItems[index]);
+				menuItems[index].forEach(function (element) {
+					items.push({
+						items: element
+					})
+				});
+				$table2.bootstrapTable('load', items)
+			}
+		}
+		submitSection.onclick = function () {
+			section = (document.getElementById("newSection").value);
+			console.log(section);
+			document.getElementById("newSection").value = "";
+			modal.style.display = "none";
+			menu.push(section);
+			menuItems.push([]);
+			sections = []
+			menu.forEach(function (element) {
+				sections.push({
+					state: false,
+					section: element
+				})
+			});
+			sections[sections.length - 1].state = true;
+			$table1.bootstrapTable('load', sections);
+			$table2.bootstrapTable('removeAll');
+			//addMenuSectionButton = document.getElementById('addMenuSection');
+
+		}
+		submitItem.onclick = function () {
+			var item = (document.getElementById("newItem").value);
+			console.log(item);
+			document.getElementById("newItem").value = "";
+			itemModal.style.display = "none";
+
+			selection = ($table1.bootstrapTable('getSelections')[0].section);
+			console.log(selection);
+			var index = menu.indexOf(selection);
+
+			menuItems[index].push(item);
+			items = []
+			menuItems[index].forEach(function (element) {
+				items.push({
+					items: element
+				})
+			});
+			$table2.bootstrapTable('load', items);
+			//addMenuSectionButton = document.getElementById('addMenuSection');
+
+		}
+		span.onclick = function () {
+			modal.style.display = "none";
+			itemModal.style.display = "none";
+		}
+		span2.onclick = function () {
+			modal.style.display = "none";
+			itemModal.style.display = "none";
+		}
+		window.onclick = function (event) {
+			if (event.target == modal) {
+				modal.style.display = "none";
+			}
+			if (event.target == itemModal) {
+				itemModal.style.display = "none";
+			}
+
+		};
+	}
+</script>
+
+</html>
