@@ -52,7 +52,7 @@ module.exports = {
     //update item given ID
     updateItem: function (item, callback) {
         const updateItemQuery = 'UPDATE item SET category = ?, price = ?, quantity = ?, brand = ?, name = ? WHERE itemID = ?';
-        db.all(updateItemQuery, [item.category,item.price,item.quantity,item.brand,item.name,item.itemID], (err, rows) => {
+        db.all(updateItemQuery, [item.category, item.price, item.quantity, item.brand, item.name, item.itemID], (err, rows) => {
             if (err) {
                 //console.log(err);
                 //throw err;//CATCH
@@ -100,7 +100,7 @@ module.exports = {
     // Add an item to cart
     addToCart: function (id, item, quantity, callback) {
         const addToCartQuery = 'INSERT INTO cart (item,quantity,customer) VALUES (?,?,?)';
-        db.all(addToCartQuery, [item,quantity,id], (err, rows) => {
+        db.all(addToCartQuery, [item, quantity, id], (err, rows) => {
             if (err) {
                 //console.log(err);
                 callback(err);
@@ -114,7 +114,7 @@ module.exports = {
     //update quantity of an item in cart
     updateCart: function (id, item, quantity, callback) {
         const query = 'UPDATE cart SET quantity = ? WHERE item = ? AND customer = ?';
-        db.all(query, [quantity,item,id], (err, rows) => {
+        db.all(query, [quantity, item, id], (err, rows) => {
             if (err) {
                 callback(err);
             }
@@ -145,30 +145,43 @@ module.exports = {
                 callback(err);
             }
             else {
-                db.get(query2, [],(err, row) => {
+                db.get(query2, [], (err, row) => {
                     if (err) {
                         callback(err);
                     }
                     else {
                         //console.log(row);
                         //console.log(row['last_insert_rowid()']);
-                        callback(null,row['last_insert_rowid()']);
+                        callback(null, row['last_insert_rowid()']);
                     }
                 });
             }
         });
     },
     //add item to an order
-    addItemToOrder: function (itemid, orderid, quantity, callback) {
-        const query = 'INSERT INTO order (customer, total, payment) VALUES (?,?,?)'
-        db.all(query, [id, total, payment], (err, rows) => {
+    addItemToOrder: function (items, callback) {
+        const query = 'INSERT INTO ordercontains (orderid, item, quantity) VALUES (?,?,?)';
+        items.forEach(item => {
+            console.log(item[1]);
+            db.all(query, [item[0], item[1], item[2]], (err, rows) => {
+                if (err) {
+                    callback(err);
+                }
+            });
+            callback(null, null);
+        });
+    },
+
+    // Add address ti customrer
+    addAddress: function (customer, addressline, addressname, zipcode, country, callback) {
+        const query = 'INSERT INTO address (customer, addressline, addressname,zip, country) VALUES (?,?,?,?,?)';
+        db.run(query, [customer, addressline, addressname, zipcode, country], (err) => {
             if (err) {
                 callback(err);
             }
-            else {
-                callback(null, null);
-            }
         });
-    },
+        callback(null, null);
+    }
+
 
 };

@@ -184,7 +184,7 @@ app.post('/order/:id', (req, res) => {
     const total = req.body.total;
     const payment = req.body.payment;
     const items = req.body.items;
-    db.createNewOrder(customerid, total, payment, (err, result) => {
+    db.createNewOrder(customerid, total, payment, (err, orderid) => {
         if (err) {
             console.log("err");
             console.log(err);
@@ -193,12 +193,18 @@ app.post('/order/:id', (req, res) => {
             });
         }
         else {
-            console.log(result);
-            /*
+            console.log(orderid);
+            itemsArr = [];
             items.forEach(item => {
-                addItemToOrder
+                itemsArr.push([orderid,item.id,item.quantity]);
             });
-*/
+            console.log(itemsArr);
+            db.addItemToOrder(itemsArr, (err, result) => {
+                if (err) {
+                    console.log("error");
+                    console.log(err);
+                }
+            })
             res.status(200).send({
                 success: true
             });
