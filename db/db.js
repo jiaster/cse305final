@@ -171,6 +171,91 @@ module.exports = {
             callback(null, null);
         });
     },
+// get items in orderid
+    getItemsInOrder: function (orderid, callback) {
+        const query = 'SELECT item,quantity FROM ordercontains WHERE orderid = ?';
+        db.all(query, [orderid], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else{
+                let order = [];
+                console.log(rows);
+                rows.forEach((row) => {
+                    order.push(row);
+                    console.log(row);
+                });
+                console.log(order);
+                callback(null, order);
+            }
+        });
+    },
+    //get orders for customer
+    getOrders: function (customerid, callback) {
+        const query = 'SELECT orderid,total,status,date FROM orders WHERE customer = ?';
+        db.all(query, [customerid], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else{
+                let orders = [];
+                console.log(rows);
+                rows.forEach((row) => {
+                    orders.push(row);
+                    console.log(row);
+                });
+                console.log(orders);
+                callback(null, orders);
+            }
+        });
+    },
+
+    getCustomer: function (customerid, callback) {
+        const query = 'SELECT * FROM customer WHERE customerid = ?';
+        db.get(query, [customerid], (err, row) => {
+            if (err) {
+                callback(err);
+            }
+            else{
+                console.log(row);
+                callback(null, row);
+            }
+        });
+    },
+
+    getAddresses: function (customerid, callback) {
+        const query = 'SELECT * FROM address WHERE customer = ?';
+        db.all(query, [customerid], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else{
+                let addresses = [];
+                console.log(rows);
+                rows.forEach((row) => {
+                    addresses.push(row);
+                });
+                callback(null, addresses);
+            }
+        });
+    },
+
+    getPayments: function (customerid, callback) {
+        const query = 'SELECT * FROM payment WHERE customer = ?';
+        db.all(query, [customerid], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else{
+                let payments = [];
+                console.log(rows);
+                rows.forEach((row) => {
+                    payments.push(row);
+                });
+                callback(null, payments);
+            }
+        });
+    },
 
     // Add address ti customrer
     addAddress: function (customer, addressline, addressname, zipcode, country, callback) {

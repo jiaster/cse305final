@@ -1,12 +1,19 @@
 const express = require('express');
 const db = require('./db/db.js');
 const bodyParser = require('body-parser');
-const Promise = require('promise');
+const serveStatic = require("serve-static")
+const path = require('path');
 
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(serveStatic(path.join(__dirname, 'dist')));
+const PORT = process.env.PORT || 80;
+//const INDEX = path.join(__dirname, 'index.html');
+
+
+
 
 // Get all items
 app.get('/items', (req, res) => {
@@ -196,7 +203,7 @@ app.post('/order/:id', (req, res) => {
             console.log(orderid);
             itemsArr = [];
             items.forEach(item => {
-                itemsArr.push([orderid,item.id,item.quantity]);
+                itemsArr.push([orderid, item.id, item.quantity]);
             });
             console.log(itemsArr);
             db.addItemToOrder(itemsArr, (err, result) => {
@@ -211,10 +218,109 @@ app.post('/order/:id', (req, res) => {
         }
     });
 });
+//Get items in order
+app.get('/order/:id', (req, res) => {
+    const orderid = parseInt(req.params.id);
+    db.getItemsInOrder(orderid, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.status(200).send({
+                order: result
+            });
+        }
+    });
+});
+// get orders by customer
+app.get('/customer/orders/:id', (req, res) => {
+    const customerid = parseInt(req.params.id);
+    //console.log(req.body);
+    //const customerid = req.body.id;
+    db.getOrders(customerid, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.status(200).send({
+                orders: result
+            });
+        }
+    });
+});
+//get customer info
+app.get('/customer/:id', (req, res) => {
+    const customerid = parseInt(req.params.id);
+    db.getCustomer(customerid, (err, customerinfo) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            db.getAddresses(customerid, (err, addresses) => {
+                if (err) {
+                    console.log("err");
+                    console.log(err);
+                    res.status(400).send({
+                        success: false
+                    });
+                }
+                else {
+                    db.getPayments(customerid, (err, payments) => {
+                        if (err) {
+                            console.log("err");
+                            console.log(err);
+                            res.status(400).send({
+                                success: false
+                            });
+                        }
+                        else {
+                            res.status(200).send({
+                                customerinfo: customerinfo,
+                                addresses: addresses,
+                                payments: payments
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
 
-
+/*
 const PORT = 5000;
 
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`)
 });
+*/
+
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname + '/index.html'));
+});
+app.get('/style.css', function (req, res) {
+    res.sendFile(path.join(__dirname + '/style.css'));
+});
+app.get('/tables.js', function (req, res) {
+    res.sendFile(path.join(__dirname + '/tables.js'));
+});
+app.get('/tabulator.min.js', function (req, res) {
+    res.sendFile(path.join(__dirname + '/tabulator.min.js'));
+});
+app.get('/tabulator.min.css', function (req, res) {
+    res.sendFile(path.join(__dirname + '/tabulator.min.css'));
+});
+app.listen(PORT);
+console.log(`server running on port ${PORT}`)

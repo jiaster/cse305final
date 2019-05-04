@@ -2,190 +2,163 @@
 <html lang="en">
 
 <head>
-	<title>Menu Sections</title>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-		integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
-		integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-	<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
-	<link rel="stylesheet" href="tablelist.css" type="text/css" />
-
+    <meta charset="UTF-8">
+    <title>CSE 305 Projet</title>
+    <link rel='stylesheet' href='//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css'>
+    <link rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="./style.css" type="text/css" />
+    <script>
+        window.console = window.console || function (t) { };
+    </script>
 </head>
 
-<body>
-	<div id="container">
-		<div id="first">
-			<div>
-				<div id="sectionModal" class="modal">
-					<div class="modal-content">
-						<span class="close">&times;</span>
-						<p>Add New section:</p>
-						<input id="newSection" type="text" name="fname"><br>
-						<button id="submitSection">Submit</button>
-					</div>
-				</div>
-				<div id="itemModal" class="modal">
-					<div class="modal-content">
-						<span class="close">&times;</span>
-						<p>Add New item:</p>
-						<input id="newItem" type="text" name="fname"><br>
-						<button id="submitItem">Submit</button>
-					</div>
-				</div>
+<body translate="no">
+    <div class="container">
+        <form id="changeUser">
+            Userid: <input id="user" type="text">
+            <input type="submit">
+        </form>
+        <p>Logged in as:</p>
+        <p id="userid"></p>
+        <h1>ITEMS:</h1>
+        <div id="itemstable">
+        </div>
+        <h1>CART:</h1>
+        <div id="cart">
+        </div>
+        <h1>ORDERS:</h1>
+        <div id="orders">
+        </div>
+    </div>
+    <button id="export-btn" class="btn btn-primary">Export Data</button>
+    <p id="export"></p>
+    </div>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
+    <script src='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore.js'></script>
+    <script src="tables.js"></script>
+    <link href="tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="tabulator.min.js"></script>
+    <script type="text/javascript">
+        //sample data
+        const url = window.location.origin;
+        var user = 0;
+        var cart;
+        var orders;
 
-			</div>
-			<button id="addMenuSection">+</button>
-			<table id="table1" data-toggle="table" data-height="460" data-click-to-select="true"
-				data-single-select="true">
-				<thead>
-					<tr>
-						<th data-field="state" data-checkbox="true">
-						</th>
-						<th data-field="section">Menu Selections
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-				</tbody>
-			</table>
-		</div>
-		<div id="second">
-			<button id="addItems">+</button>
-			<table id="table2" data-toggle="table">
-				<thead>
-					<tr>
-						<th data-field="items">Items
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-				</tbody>
-			</table>
-		</div>
-	</div>
+        var itemstable = new Tabulator("#itemstable", {
+            height: 200,
+            layout: "fitColumns", //fit columns to width of table (optional)
+            columns: [ //Define Table Columns
+                { title: "Name", field: "Name", sorter: "string" },
+                { title: "Brand", field: "Brand", sorter: "string", sortable: true },
+                { title: "Category", field: "Category", sorter: "string" },
+                { title: "Price", field: "Price", sorter: "number", sortable: true }
+
+            ],
+            rowClick: function (e, id, data, row) {
+                console.log(id);
+            },
+        });
+        var carttable = new Tabulator("#cart", {
+            height: 200,
+            layout: "fitColumns", //fit columns to width of table (optional)
+            columns: [ //Define Table Columns
+                { title: "Name", field: "Name", sorter: "string" },
+                { title: "Unit Price", field: "Price", sorter: "number" },
+                { title: "Quantity", field: "Quantity", sorter: "number" },
+                { title: "Total", field: "Total", sorter: "number" }
+            ],
+            rowClick: function (e, id, data, row) {
+                console.log(id);
+            },
+        });
+        var orderstable = new Tabulator("#orders", {
+            height: 200,
+            layout: "fitColumns", //fit columns to width of table (optional)
+            columns: [ //Define Table Columns
+                { title: "Order ID", field: "OrderID", sorter: "number" },
+                { title: "Date", field: "Date", sorter: "date" },
+                { title: "Total", field: "Total", sorter: "number" },
+                { title: "Status", field: "Status", sorter: "string" }
+            ],
+            rowClick: function (e, id, data, row) {
+                console.log(id);
+            },
+        });
+
+        $('#changeUser').submit(() => {
+            user = $('#user').val();
+            console.log(/^\+?(0|[1-9]\d*)$/.test($('#user').val()));
+            if (/^\+?(0|[1-9]\d*)$/.test(user) == true) {//if integer
+                user = $('#user').val();
+                console.log(`user set to ${user}`);
+                $('#userid').text(user);
+                //changeUsers();//TODO
+                const cartURL = `${url}/cart/${user}`;
+                console.log(cartURL);
+                fetch(cartURL)//get cart
+                    .then(data => { return data.json() })
+                    .then(res => {
+                        var count = 0;
+                        cart = res["cart"];
+                        cart.forEach((item) => {
+                            const itemURL = `${url}/items/${item.Item}`;
+                            fetch(itemURL)
+                                .then(data => { return data.json() })
+                                .then(res => {
+                                    //console.log(res);
+                                    item.Price = res["cart"][0].Price;
+                                    item.Name = res["cart"][0].Name;
+                                    item.Total = res["cart"][0].Quantity * res["cart"][0].Price;
+                                    carttable.setData(cart);
+                                });
+                        });
+                    })
+                //calculate totals
+
+                const getOrderURL = `${url}/customer/orders/${user}`;
+                //var data;// = { id: user };
+                //console.log(data);
+                fetch(getOrderURL)//get orders
+                    .then(data => { return data.json() })
+                    .then(res => {
+                        console.log(res);
+                        orders = res["orders"];
+                        orderstable.setData(orders);
+                    })
+
+                const getCustomerInfo = `${url}/customer/${user}`;
+                fetch(getCustomerInfo)//get orders
+                    .then(data => { return data.json() })
+                    .then(res => {
+                        console.log(res);
+                        //orders = res["orders"];
+                        //orderstable.setData(orders);
+                    })
+                    
+                return false;
+            } else {
+                return false;
+            }
+        });
+
+
+
+        const itemURL = `${url}/items`;
+        var items;
+        console.log(itemURL);
+        fetch(itemURL)
+            .then(data => { return data.json() })
+            .then(res => {
+                items = res["items"];
+                console.log(items);
+                itemstable.setData(items);
+            });
+
+
+    </script>
 </body>
-
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"
-	integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
-	integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-	crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
-	integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-	crossorigin="anonymous"></script>
-<script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
-<script>
-	var menu = [];
-	var menuItems = [];
-	var items = [];
-	var sections = [];
-	window.onload = function () {
-		var modal = document.getElementById('sectionModal');
-		var itemModal = document.getElementById('itemModal');
-		var addMenuSectionButton = document.getElementById('addMenuSection');
-		var addItemButton = document.getElementById('addItems');
-		var span = document.getElementsByClassName('close')[0];
-		var span2 = document.getElementsByClassName('close')[1];
-		var table1 = document.getElementById('table1');
-		var $table1 = $('#table1');
-		var table2 = document.getElementById('table2');
-		var $table2 = $('#table2');
-		//var menu = ["Lunch", "Breakfast"];
-		//var menuItems = [["Eggs", "Bacon"], ["sandwich", "toast"]];
-		/*
-		var sections = []
-		menu.forEach(function (element) {
-			sections.push({
-				state: false,
-				section: element
-			})
-		});
-		$table1.bootstrapTable('load', sections)
-*/
-		addMenuSectionButton.onclick = function () {
-			modal.style.display = "block";
-		}
-		addItemButton.onclick = function () {
-			itemModal.style.display = "block";
-		}
-		table1.onclick = function () {
-			if ($table1.bootstrapTable('getSelections')[0] == null) {
-				$table2.bootstrapTable('removeAll');
-			}
-			else {
-				var selection = ($table1.bootstrapTable('getSelections')[0].section);
-				console.log(selection);
-				var index = menu.indexOf(selection);
-				items = []
-				console.log(menuItems[index]);
-				menuItems[index].forEach(function (element) {
-					items.push({
-						items: element
-					})
-				});
-				$table2.bootstrapTable('load', items)
-			}
-		}
-		submitSection.onclick = function () {
-			section = (document.getElementById("newSection").value);
-			console.log(section);
-			document.getElementById("newSection").value = "";
-			modal.style.display = "none";
-			menu.push(section);
-			menuItems.push([]);
-			sections = []
-			menu.forEach(function (element) {
-				sections.push({
-					state: false,
-					section: element
-				})
-			});
-			sections[sections.length - 1].state = true;
-			$table1.bootstrapTable('load', sections);
-			$table2.bootstrapTable('removeAll');
-			//addMenuSectionButton = document.getElementById('addMenuSection');
-
-		}
-		submitItem.onclick = function () {
-			var item = (document.getElementById("newItem").value);
-			console.log(item);
-			document.getElementById("newItem").value = "";
-			itemModal.style.display = "none";
-
-			selection = ($table1.bootstrapTable('getSelections')[0].section);
-			console.log(selection);
-			var index = menu.indexOf(selection);
-
-			menuItems[index].push(item);
-			items = []
-			menuItems[index].forEach(function (element) {
-				items.push({
-					items: element
-				})
-			});
-			$table2.bootstrapTable('load', items);
-			//addMenuSectionButton = document.getElementById('addMenuSection');
-
-		}
-		span.onclick = function () {
-			modal.style.display = "none";
-			itemModal.style.display = "none";
-		}
-		span2.onclick = function () {
-			modal.style.display = "none";
-			itemModal.style.display = "none";
-		}
-		window.onclick = function (event) {
-			if (event.target == modal) {
-				modal.style.display = "none";
-			}
-			if (event.target == itemModal) {
-				itemModal.style.display = "none";
-			}
-
-		};
-	}
-</script>
 
 </html>
