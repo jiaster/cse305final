@@ -130,6 +130,7 @@ app.get('/cart/:id', (req, res) => {
 
 // add an item or update quantity o an item to cart
 app.post('/cart/:id', (req, res) => {
+    //console.log("add to cart recieved");
     const customerid = parseInt(req.params.id);
     const item = req.body.item;
     const quantity = req.body.quantity;

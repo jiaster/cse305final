@@ -15,19 +15,55 @@
 <body translate="no">
     <div class="container">
         <form id="changeUser">
-            Userid: <input id="user" type="text">
-            <input type="submit">
+            User id: <input id="user" type="text">
+            <input type="submit" value="Log in">
         </form>
-        <p>Logged in as:</p>
+        <p>Logged in as id:</p>
         <p id="userid"></p>
-        <h1>ITEMS:</h1>
+        <form id="changeCustomerInfo">
+            First Name: <input id="firstName" type="text"><br>
+            Last Name: <input id="lastName" type="text"><br>
+            Email: <input id="email" type="text"><br>
+            Phone: <input id="phone" type="text">
+            <input type="submit" value="Change">
+        </form>
+        <h1>Items:</h1>
         <div id="itemstable">
         </div>
-        <h1>CART:</h1>
+        <h1>Cart:</h1>
         <div id="cart">
         </div>
-        <h1>ORDERS:</h1>
+        Total: <p id="cartTotal"></p>
+        <button type="button" id="checkoutButton" data-toggle="modal" data-target="#myModal">Open Modal</button>
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        Total: <p id="checkoutTotal""></p><br>
+                        User id: <input id=" user" type="text">
+                            <select class="form-control" id="addressSelect">
+                            </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button">Checkout</button>
+                        <button type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <h1>Orders:</h1>
         <div id="orders">
+        </div>
+        <h1>Addresses:</h1>
+        <div id="addresses">
+        </div>
+        <h1>Payment Methods:</h1>
+        <div id="payments">
         </div>
     </div>
     <button id="export-btn" class="btn btn-primary">Export Data</button>
@@ -46,6 +82,8 @@
         var user = 0;
         var cart;
         var orders;
+        var total = 0;
+        var addressSelect = $(`#addressSelect`);
 
         var itemstable = new Tabulator("#itemstable", {
             height: 200,
@@ -57,8 +95,12 @@
                 { title: "Price", field: "Price", sorter: "number", sortable: true }
 
             ],
-            rowClick: function (e, id, data, row) {
-                console.log(id);
+            rowClick: (e, row) => {
+                console.log(row.getData());
+                addToCart(row.getData(), () => {
+                    updateCart();
+                    console.log('asd');
+                });
             },
         });
         var carttable = new Tabulator("#cart", {
@@ -88,6 +130,33 @@
             },
         });
 
+        var addressestable = new Tabulator("#addresses", {
+            height: 200,
+            layout: "fitColumns", //fit columns to width of table (optional)
+            columns: [ //Define Table Columns
+                { title: "Name", field: "AddressName", sorter: "string" },
+                { title: "Address Line", field: "AddressLine", sorter: "string" },
+                { title: "Zip Code", field: "Zip", sorter: "number" },
+                { title: "Country", field: "Country", sorter: "string" }
+            ],
+            rowClick: function (e, id, data, row) {
+                console.log(id);
+            },
+        });
+        var paymentstable = new Tabulator("#payments", {
+            height: 200,
+            layout: "fitColumns", //fit columns to width of table (optional)
+            columns: [ //Define Table Columns
+                { title: "Name", field: "Name", sorter: "string" },
+                { title: "Type", field: "Type", sorter: "string" },
+                { title: "Card", field: "Card", sorter: "string" },
+                { title: "Card Expiry Date", field: "CardExpiry", sorter: "number" }
+            ],
+            rowClick: function (e, id, data, row) {
+                console.log(id);
+            },
+        });
+
         $('#changeUser').submit(() => {
             user = $('#user').val();
             console.log(/^\+?(0|[1-9]\d*)$/.test($('#user').val()));
@@ -96,26 +165,7 @@
                 console.log(`user set to ${user}`);
                 $('#userid').text(user);
                 //changeUsers();//TODO
-                const cartURL = `${url}/cart/${user}`;
-                console.log(cartURL);
-                fetch(cartURL)//get cart
-                    .then(data => { return data.json() })
-                    .then(res => {
-                        var count = 0;
-                        cart = res["cart"];
-                        cart.forEach((item) => {
-                            const itemURL = `${url}/items/${item.Item}`;
-                            fetch(itemURL)
-                                .then(data => { return data.json() })
-                                .then(res => {
-                                    //console.log(res);
-                                    item.Price = res["cart"][0].Price;
-                                    item.Name = res["cart"][0].Name;
-                                    item.Total = res["cart"][0].Quantity * res["cart"][0].Price;
-                                    carttable.setData(cart);
-                                });
-                        });
-                    })
+                updateCart();
                 //calculate totals
 
                 const getOrderURL = `${url}/customer/orders/${user}`;
@@ -134,30 +184,125 @@
                     .then(data => { return data.json() })
                     .then(res => {
                         console.log(res);
+                        $(firstName).val(res["customerinfo"].FirstName);
+                        $(lastName).val(res["customerinfo"].LastName);
+                        $(email).val(res["customerinfo"].Email);
+                        $(phone).val(res["customerinfo"].Phone);
+                        addressestable.setData(res["addresses"]);
+                        paymentstable.setData(res["payments"]);
                         //orders = res["orders"];
                         //orderstable.setData(orders);
                     })
-                    
+
                 return false;
             } else {
                 return false;
             }
         });
 
+        function addToCart(item, callback) {
+            //determine if item is already in cart
+            var inCart = false;
+            var quantity = 1;
+            if (carttable.getData().legnth != 0) {
+                carttable.getData().forEach(cartItem => {
+                    if (cartItem.Name === item.Name) {
+                        console.log('item in cart');
+                        inCart = true;
+                        quantity = (cartItem.Quantity) + 1;
+                    }
+                });
+            }
+            var type;
+            if (inCart === false) {
+                type = 'add';
+            } else {
+                type = 'update';
+            }
+            const addToCartURL = `${url}/cart/${user}`;
+            var data = {
+                item: item.ItemID,
+                type: type,
+                quantity: quantity
+            };
+            console.log(data);
+            fetch(addToCartURL, {
+                method: 'POST', // or 'PUT'
+                body: JSON.stringify(data), // data can be `string` or {object}!
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(data => { return data.json() })
+                .then(res => {
+                    callback();
+                });
 
+        };
 
-        const itemURL = `${url}/items`;
-        var items;
-        console.log(itemURL);
-        fetch(itemURL)
-            .then(data => { return data.json() })
-            .then(res => {
-                items = res["items"];
-                console.log(items);
-                itemstable.setData(items);
+        function updateCartTotal() {
+            var cart = carttable.getData();
+            cart.forEach(item => {
+                total += item.Total;
+                console.log(total);
+                console.log(item.Price);
             });
+            console.log(total);
+            $('#cartTotal').text(total.toFixed(2));
+        };
 
+        $('#checkout').on('click', (event) => {
+        });
+        $('#checkoutButton').on('click', (event) => {
+            $(`#checkoutTotal`).text(total.toFixed(2));
+            var Addresses = addressestable.getData();
+            //console.log(Addresses);
+            for (var i = 0; i < Addresses.length; i++) {
+                //var opt = document.createElement('option');
+                var opt = document.createElement('option');
+                opt.value = Addresses[i].AddressName;
+                opt.innerHTML = Addresses[i].AddressName;
+                $(`#addressSelect`).append(opt);
+            }
+        });
 
+        function updateItems() {
+            const itemURL = `${url}/items`;
+            var items;
+            fetch(itemURL)
+                .then(data => { return data.json() })
+                .then(res => {
+                    items = res["items"];
+                    itemstable.setData(items);
+                    console.log(items);
+                });
+        };
+        updateItems();
+
+        function updateCart() {
+            const cartURL = `${url}/cart/${user}`;
+            console.log(cartURL);
+            fetch(cartURL)//get cart
+                .then(data => { return data.json() })
+                .then(res => {
+                    var count = 0;
+                    cart = res["cart"];
+                    cart.forEach((item) => {
+                        const itemURL = `${url}/items/${item.Item}`;
+                        fetch(itemURL)
+                            .then(data => { return data.json() })
+                            .then(res => {
+                                console.log(res);
+                                item.Price = res["cart"][0].Price;
+                                item.Name = res["cart"][0].Name;
+                                item.Total = item.Quantity * res["cart"][0].Price;
+                                carttable.setData(cart);
+                                total = 0;
+                                updateCartTotal();
+                            });
+                    });
+                })
+        };
     </script>
 </body>
 
