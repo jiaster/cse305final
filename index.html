@@ -35,7 +35,7 @@
         <p>Click item to remove 1 from cart</p>
         <div id="cart">
         </div>
-        Total: <p id="cartTotal"></p>
+        Total: <p id="cartTotal">0.00</p>
         <button type="button" id="checkoutButton" data-toggle="modal" data-target="#myModal">Open Modal</button>
         <div id="myModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -101,10 +101,9 @@
 
             ],
             rowClick: (e, row) => {
-                console.log(row.getData());
+                //console.log(row.getData());
                 addToCart(row.getData(), () => {
                     updateCart();
-                    console.log('asd');
                 });
             },
         });
@@ -117,8 +116,11 @@
                 { title: "Quantity", field: "Quantity", sorter: "number" },
                 { title: "Total", field: "Total", sorter: "number" }
             ],
-            rowClick: function (e, id, data, row) {
-                console.log(id);
+            rowClick: function (e, row) {
+                console.log(row);
+                removeFromCart(row.getData(), () => {
+                    updateCart();
+                });
             },
         });
         var orderstable = new Tabulator("#orders", {
@@ -230,7 +232,7 @@
                 type: type,
                 quantity: quantity
             };
-            console.log(data);
+            //console.log(data);
             fetch(addToCartURL, {
                 method: 'POST', // or 'PUT'
                 body: JSON.stringify(data), // data can be `string` or {object}!
@@ -244,14 +246,53 @@
                 });
 
         };
+        // remove 1 item from cart
+        function removeFromCart(item, callback) {
+            //determine if item should be removed for -1 quantity
+            var newQuantity = 1;
+            if (carttable.getData().legnth != 0) {
+                carttable.getData().forEach(cartItem => {
+                    if (cartItem.Name === item.Name) {
+                        newQuantity = (cartItem.Quantity) - 1;
+                    }
+                });
+            }
+            var type;
+            if (newQuantity === 0) {
+                type = 'DELETE';//delete
+            } else {
+                type = 'POST';//-1 quantity
+            }
+            const cartURL = `${url}/cart/${user}`;
+            var data = {
+                item: item.Item,
+                quantity: newQuantity
+            };
+            console.log(data);
+            fetch(cartURL, {
+                method: type,
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(data => { return data.json() })
+                .then(res => {
+                    callback();
+                });
+
+        };
 
         function updateCartTotal() {
             var cart = carttable.getData();
-            cart.forEach(item => {
-                total += item.Total;
-                console.log(total);
-                console.log(item.Price);
-            });
+            console.log(cart);
+            if (cart === undefined || cart.length === 0) {
+                total = 0;
+            } else {
+                cart.forEach(item => {
+                    total += item.Total;
+                });
+            }
             console.log(total);
             $('#cartTotal').text(total.toFixed(2));
         };
@@ -279,7 +320,7 @@
                 address: addressid,
                 items: items
             };
-            console.log(data);
+            //console.log(data);
 
             const addToCartURL = `${url}/order/${user}`;
             fetch(addToCartURL, {
@@ -321,33 +362,38 @@
                 .then(res => {
                     items = res["items"];
                     itemstable.setData(items);
-                    console.log(items);
+                    //console.log(items);
                 });
         };
         updateItems();
 
         function updateCart() {
             const cartURL = `${url}/cart/${user}`;
-            console.log(cartURL);
+            //console.log(cartURL);
             fetch(cartURL)//get cart
                 .then(data => { return data.json() })
                 .then(res => {
                     var count = 0;
                     cart = res["cart"];
-                    cart.forEach((item) => {
-                        const itemURL = `${url}/items/${item.Item}`;
-                        fetch(itemURL)
-                            .then(data => { return data.json() })
-                            .then(res => {
-                                console.log(res);
-                                item.Price = res["cart"][0].Price;
-                                item.Name = res["cart"][0].Name;
-                                item.Total = item.Quantity * res["cart"][0].Price;
-                                carttable.setData(cart);
-                                total = 0;
-                                updateCartTotal();
-                            });
-                    });
+                    if (cart === undefined || cart.length === 0) {
+                        carttable.clearData();
+                        updateCartTotal();
+                    } else {
+                        cart.forEach((item) => {
+                            const itemURL = `${url}/items/${item.Item}`;
+                            fetch(itemURL)
+                                .then(data => { return data.json() })
+                                .then(res => {
+                                    console.log(res);
+                                    item.Price = res["cart"][0].Price;
+                                    item.Name = res["cart"][0].Name;
+                                    item.Total = item.Quantity * res["cart"][0].Price;
+                                    carttable.setData(cart);
+                                    total = 0;
+                                    updateCartTotal();
+                                });
+                        });
+                    }
                 })
         };
     </script>

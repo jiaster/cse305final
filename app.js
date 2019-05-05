@@ -114,23 +114,16 @@ app.get('/cart/:id', (req, res) => {
                 success: false
             });
         }
-        if (result != undefined && result.length != 0) {
+        else {
             res.status(200).send({
                 cart: result
-            });
-        }
-        else {
-            res.status(404).send({
-                success: false,
-                message: 'id not found'
             });
         }
     });
 });
 
-// add an item or update quantity o an item to cart
+// add an item or update quantity or delete an item to/from cart
 app.post('/cart/:id', (req, res) => {
-    //console.log("add to cart recieved");
     const customerid = parseInt(req.params.id);
     const item = req.body.item;
     const quantity = req.body.quantity;
@@ -150,7 +143,9 @@ app.post('/cart/:id', (req, res) => {
                 });
             }
         });
-    } else if (type === 'update') { //update quantity of item
+    } else { //update quantity of item
+        console.log("update to cart recieved");
+        console.log(req.body);
         db.updateCart(customerid, item, quantity, (err, result) => {
             if (err) {
                 console.log("err");
@@ -171,6 +166,8 @@ app.post('/cart/:id', (req, res) => {
 app.delete('/cart/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const item = req.body.item;
+    console.log("delete to cart recieved");
+    console.log(req.body);
     db.deleteFromCart(id, item, (err, result) => {
         if (err) {
             console.log("err");
@@ -180,7 +177,7 @@ app.delete('/cart/:id', (req, res) => {
             });
         }
         else {
-            res.startus(200).send({
+            res.status(200).send({
                 sucess: true
             });
         }
