@@ -223,6 +223,18 @@ module.exports = {
         });
     },
 
+    editCustomer: function (customerid, firstName, lastName, email, phone, callback) {
+        const query = 'UPDATE customer SET firstname = ?, lastname = ?, email = ?, phone = ? WHERE customerid = ?';
+        db.run(query, [firstName, lastName, email, phone, customerid], (err, row) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
+
     getAddresses: function (customerid, callback) {
         const query = 'SELECT * FROM address WHERE customer = ?';
         db.all(query, [customerid], (err, rows) => {

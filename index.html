@@ -15,17 +15,18 @@
 <body translate="no">
     <div class="container">
         <form id="changeUser">
-            User id: <input id="user" type="text">
+            <p>User id: </p><input id="user" type="text">
             <input type="submit" value="Log in">
         </form>
         <p>Logged in as id:</p>
         <p id="userid"></p>
         <form id="changeCustomerInfo">
-            First Name: <input id="firstName" type="text"><br>
-            Last Name: <input id="lastName" type="text"><br>
-            Email: <input id="email" type="text"><br>
-            Phone: <input id="phone" type="text">
-            <input type="submit" value="Change">
+            <p>First Name: <input id="firstName" type="text"></p>
+            <p>Last Name: <input id="lastName" type="text"></p>
+            <p>Email: <input id="email" type="text"></p>
+            <p>Phone: <input id="phone" type="text"></p>
+            <button id="changeUserInfoButton" type="button">Change</button>
+            <button id="registerButton" type="button">Register</button>
         </form>
         <h1>Items:</h1>
         <p>Click item to add 1 to cart</p>
@@ -35,7 +36,8 @@
         <p>Click item to remove 1 from cart</p>
         <div id="cart">
         </div>
-        Total: <p id="cartTotal">0.00</p>
+        <p>Total: </p>
+        <p id="cartTotal">0.00</p>
         <button type="button" id="checkoutButton" data-toggle="modal" data-target="#myModal">Open Modal</button>
         <div id="myModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -44,11 +46,12 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        Total: <p id="checkoutTotal""></p><br>
-                        Ship to:
+                        <p>Total: </p>
+                        <p id="checkoutTotal""></p><br>
+                    <p>Ship to:</p>
                             <select class=" form-control" id="addressSelect">
                             </select>
-                            Payment:
+                            <p>Payment:</p>
                             <select class=" form-control" id="paymentSelect">
                             </select>
                     </div>
@@ -352,6 +355,36 @@
                 opt.innerHTML = payments[i].Name;
                 $(`#paymentSelect`).append(opt);
             }
+        });
+        //Change user info
+        $('#changeUserInfoButton').on('click', (event) => {
+            var firstName = $('#firstName').val();
+            var lastName = $('#lastName').val();
+            var email = $('#email').val();
+            var phone = $('#phone').val();
+            var data = {
+                firstname: firstName,
+                lastname: lastName,
+                email: email,
+                phone: phone
+            };
+
+            const updateCustomerURL = `${url}/customer/${user}`;
+            fetch(updateCustomerURL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(data => { return data.json() })
+                .then(res => {
+
+                });
+        });
+        // register new user
+        $('#registerButton').on('click', (event) => {
+
         });
 
         function updateItems() {
