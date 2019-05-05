@@ -305,7 +305,7 @@ app.post('/customer/:id', (req, res) => {
     const email = req.body.email;
     const phone = req.body.phone;
     console.log(req.body)
-    db.editCustomer(customerid, firstName, lastName, email, phone, (err, orderid) => {
+    db.editCustomer(customerid, firstName, lastName, email, phone, (err, result) => {
         if (err) {
             console.log("err");
             console.log(err);
@@ -316,6 +316,29 @@ app.post('/customer/:id', (req, res) => {
         else {
             res.status(200).send({
                 success: true
+            });
+        }
+    });
+});
+app.post('/customer', (req, res) => {
+    const customerid = parseInt(req.params.id);
+    const firstName = req.body.firstname;
+    const lastName = req.body.lastname;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    console.log(req.body)
+    db.addCustomer(firstName, lastName, email, phone, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.status(200).send({
+                success: true,
+                newid: result
             });
         }
     });

@@ -235,6 +235,26 @@ module.exports = {
         });
     },
 
+    addCustomer: function (firstName, lastName, email, phone, callback) {
+        const query = 'INSERT INTO customer (firstName,lastName,email,phone) VALUES (?,?,?,?)';
+        const query2 = 'SELECT last_insert_rowid()';
+        db.run(query, [firstName, lastName, email, phone], (err, row) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                db.get(query2, [], (err, row) => {
+                    if (err) {
+                        callback(err);
+                    }
+                    else {
+                        callback(null, row['last_insert_rowid()']);
+                    }
+                });
+            }
+        });
+    },
+
     getAddresses: function (customerid, callback) {
         const query = 'SELECT * FROM address WHERE customer = ?';
         db.all(query, [customerid], (err, rows) => {
