@@ -28,9 +28,11 @@
             <input type="submit" value="Change">
         </form>
         <h1>Items:</h1>
+        <p>Click item to add 1 to cart</p>
         <div id="itemstable">
         </div>
         <h1>Cart:</h1>
+        <p>Click item to remove 1 from cart</p>
         <div id="cart">
         </div>
         Total: <p id="cartTotal"></p>
@@ -43,12 +45,15 @@
                     </div>
                     <div class="modal-body">
                         Total: <p id="checkoutTotal""></p><br>
-                        User id: <input id=" user" type="text">
-                            <select class="form-control" id="addressSelect">
+                        Ship to:
+                            <select class=" form-control" id="addressSelect">
+                            </select>
+                            Payment:
+                            <select class=" form-control" id="paymentSelect">
                             </select>
                     </div>
                     <div class="modal-footer">
-                        <button type="button">Checkout</button>
+                        <button type="button" id="checkout">Checkout</button>
                         <button type="button" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -156,6 +161,16 @@
                 console.log(id);
             },
         });
+        function updateOrders() {
+            const getOrderURL = `${url}/customer/orders/${user}`;
+            fetch(getOrderURL)//get orders
+                .then(data => { return data.json() })
+                .then(res => {
+                    console.log(res);
+                    orders = res["orders"];
+                    orderstable.setData(orders);
+                })
+        }
 
         $('#changeUser').submit(() => {
             user = $('#user').val();
@@ -167,17 +182,7 @@
                 //changeUsers();//TODO
                 updateCart();
                 //calculate totals
-
-                const getOrderURL = `${url}/customer/orders/${user}`;
-                //var data;// = { id: user };
-                //console.log(data);
-                fetch(getOrderURL)//get orders
-                    .then(data => { return data.json() })
-                    .then(res => {
-                        console.log(res);
-                        orders = res["orders"];
-                        orderstable.setData(orders);
-                    })
+                updateOrders();
 
                 const getCustomerInfo = `${url}/customer/${user}`;
                 fetch(getCustomerInfo)//get orders
@@ -250,19 +255,61 @@
             console.log(total);
             $('#cartTotal').text(total.toFixed(2));
         };
-
+        //place order
         $('#checkout').on('click', (event) => {
+            var addressid;
+            var paymentid;
+            addressestable.getData().forEach(address => {
+                if (address.AddressName === $(`#addressSelect`).val()) {
+                    addressid = address.id;
+                }
+            });
+            paymentstable.getData().forEach(payment => {
+                if (payment.Name === $(`#paymentSelect`).val()) {
+                    paymentid = payment.PaymentID;
+                }
+            });
+            var items = [];
+            carttable.getData().forEach(item => {
+                items.push(item);
+            });
+            var data = {
+                total: $(`#checkoutTotal`).text(),
+                payment: paymentid,
+                address: addressid,
+                items: items
+            };
+            console.log(data);
+
+            const addToCartURL = `${url}/order/${user}`;
+            fetch(addToCartURL, {
+                method: 'POST', // or 'PUT'
+                body: JSON.stringify(data), // data can be `string` or {object}!
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(data => { return data.json() })
+                .then(res => {
+                    updateOrders();
+                });
         });
+        // open checkout modal
         $('#checkoutButton').on('click', (event) => {
             $(`#checkoutTotal`).text(total.toFixed(2));
-            var Addresses = addressestable.getData();
-            //console.log(Addresses);
-            for (var i = 0; i < Addresses.length; i++) {
-                //var opt = document.createElement('option');
+            var addresses = addressestable.getData();
+            for (var i = 0; i < addresses.length; i++) {
                 var opt = document.createElement('option');
-                opt.value = Addresses[i].AddressName;
-                opt.innerHTML = Addresses[i].AddressName;
+                opt.value = addresses[i].AddressName;
+                opt.innerHTML = addresses[i].AddressName;
                 $(`#addressSelect`).append(opt);
+            }
+            var payments = paymentstable.getData();
+            for (var i = 0; i < payments.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = payments[i].Name;
+                opt.innerHTML = payments[i].Name;
+                $(`#paymentSelect`).append(opt);
             }
         });
 

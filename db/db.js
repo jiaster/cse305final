@@ -137,10 +137,10 @@ module.exports = {
         });
     },
     //create new order and resturns that new order's id
-    createNewOrder: function (customer, total, payment, callback) {
-        const query = 'INSERT INTO orders (customer,total,payment) VALUES (?,?,?)';
+    createNewOrder: function (customer, total, payment, address, callback) {
+        const query = 'INSERT INTO orders (customer,total,payment,address) VALUES (?,?,?,?)';
         const query2 = 'SELECT last_insert_rowid()';
-        db.all(query, [customer, total, payment], (err, rows) => {
+        db.all(query, [customer, total, payment, address], (err, rows) => {
             if (err) {
                 callback(err);
             }
@@ -171,14 +171,14 @@ module.exports = {
             callback(null, null);
         });
     },
-// get items in orderid
+    // get items in orderid
     getItemsInOrder: function (orderid, callback) {
         const query = 'SELECT item,quantity FROM ordercontains WHERE orderid = ?';
         db.all(query, [orderid], (err, rows) => {
             if (err) {
                 callback(err);
             }
-            else{
+            else {
                 let order = [];
                 console.log(rows);
                 rows.forEach((row) => {
@@ -197,7 +197,7 @@ module.exports = {
             if (err) {
                 callback(err);
             }
-            else{
+            else {
                 let orders = [];
                 console.log(rows);
                 rows.forEach((row) => {
@@ -216,7 +216,7 @@ module.exports = {
             if (err) {
                 callback(err);
             }
-            else{
+            else {
                 console.log(row);
                 callback(null, row);
             }
@@ -229,7 +229,7 @@ module.exports = {
             if (err) {
                 callback(err);
             }
-            else{
+            else {
                 let addresses = [];
                 console.log(rows);
                 rows.forEach((row) => {
@@ -246,7 +246,7 @@ module.exports = {
             if (err) {
                 callback(err);
             }
-            else{
+            else {
                 let payments = [];
                 console.log(rows);
                 rows.forEach((row) => {
