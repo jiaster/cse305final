@@ -8,7 +8,7 @@
     <link rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
     <link rel="stylesheet" href="./style.css" type="text/css" />
     <script>
-        window.console = window.console || function (t) { };
+        window.console = window.console || function (t) {};
     </script>
 </head>
 
@@ -27,7 +27,8 @@
             <p>Phone: <input id="phone" type="text"></p>
             <button id="changeUserInfoButton" type="button">Change</button>
             <button id="registerButton" type="button">Register</button>
-            <p>Your new user id is :<p id="newid"></p></p>
+            <p>Your new user id is :<p id="newid"></p>
+            </p>
         </form>
         <h1>Items:</h1>
         <p>Click item to add 1 to cart</p>
@@ -66,6 +67,28 @@
         </div>
 
         <h1>Orders:</h1>
+
+        <button type="button" id="addAddressButton" data-toggle="modal" data-target="#addressBox">Add New
+            Address</button>
+        <div id="addressBox" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="newAddress">Add Address</button>
+                        <button type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
         <div id="orders">
         </div>
         <h1>Addresses:</h1>
@@ -83,7 +106,6 @@
     <link href="tabulator.min.css" rel="stylesheet">
     <script type="text/javascript" src="tabulator.min.js"></script>
     <script src="tables.js"></script>
-    
 </body>
 
 </html>
