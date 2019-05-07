@@ -314,6 +314,18 @@ module.exports = {
                 callback(null, null);
             }
         });
+    },
+    // add payment for customer
+    addPayment: function (customer, name, type, card, cardexpiry, callback) {
+        const query = 'INSERT INTO payment (customer, name, type, card, cardexpiry) VALUES (?,?,?,?,?)';
+        db.run(query, [customer, name, type, card, cardexpiry], (err, row) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
     }
 
 

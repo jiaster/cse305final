@@ -385,6 +385,29 @@ app.post('/customer/:id/address', (req, res) => {
         }
     });
 });
+// add payment
+app.post('/customer/:id/payment', (req, res) => {
+    const id = parseInt(req.params.id);
+    const name = req.body.Name;
+    const type = req.body.Type;
+    const card = req.body.Card;
+    const cardexpiry = req.body.CardExpiry;
+    //console.log(req.body);
+    db.addPayment(id, name, type, card, cardexpiry, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.status(200).send({
+                success: true
+            });
+        }
+    });
+});
 /*
 const PORT = 5000;
 

@@ -401,6 +401,35 @@ $('#newAddress').on('click', (event) => {
             addressestable.addData(data);
         });
 });
+//add new payment
+$('#newpayment').on('click', (event) => {
+    var id = user;
+    var name = $('#paymentname').val();
+    var type = $('#paymenttype').val();
+    var card = $('#paymentcard').val();
+    var cardexpiry = $('#paymentcardexpiredate').val();
+    var data = {
+        id: id,
+        Name: name,
+        Type: type,
+        Card: card,
+        CardExpiry: cardexpiry
+    };
+
+    const newPaymentURL = `${url}/customer/${user}/payment`;
+    fetch(newPaymentURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(data => { return data.json() })
+        .then(res => {
+            paymentstable.addData(data);
+        });
+});
+//update items table
 function updateItems() {
     const itemURL = `${url}/items`;
     var items;
@@ -413,7 +442,7 @@ function updateItems() {
         });
 };
 updateItems();
-
+//update cart contents
 function updateCart() {
     const cartURL = `${url}/cart/${user}`;
     //console.log(cartURL);
