@@ -1,5 +1,5 @@
 const url = window.location.origin;
-var user = 0;
+var user;
 var cart;
 var orders;
 var total = 0;
@@ -373,7 +373,34 @@ $('#registerButton').on('click', (event) => {
             $('#newid').text(res.newid)
         });
 });
+//add new address
+$('#newAddress').on('click', (event) => {
+    var id = user;
+    var addressName = $('#addressName').val();
+    var addressLine = $('#addressLine').val();
+    var zipcode = $('#zipcode').val();
+    var country = $('#country').val();
+    var data = {
+        id: id,
+        AddressName: addressName,
+        AddressLine: addressLine,
+        Zip: zipcode,
+        Country: country
+    };
 
+    const newAddressURL = `${url}/customer/${user}/address`;
+    fetch(newAddressURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(data => { return data.json() })
+        .then(res => {
+            addressestable.addData(data);
+        });
+});
 function updateItems() {
     const itemURL = `${url}/items`;
     var items;

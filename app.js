@@ -168,7 +168,7 @@ app.delete('/cart/:id', (req, res) => {
     const item = req.body.item;
     console.log(req.body);
     if (item === undefined) {//empty cart
-        console.log('delete cart of '+id);
+        console.log('delete cart of ' + id);
         db.deleteCart(id, (err, result) => {
             if (err) {
                 console.log("err");
@@ -316,6 +316,7 @@ app.get('/customer/:id', (req, res) => {
         }
     });
 });
+//edit customer info
 app.post('/customer/:id', (req, res) => {
     const customerid = parseInt(req.params.id);
     const firstName = req.body.firstname;
@@ -338,8 +339,8 @@ app.post('/customer/:id', (req, res) => {
         }
     });
 });
+//add new customer
 app.post('/customer', (req, res) => {
-    const customerid = parseInt(req.params.id);
     const firstName = req.body.firstname;
     const lastName = req.body.lastname;
     const email = req.body.email;
@@ -357,6 +358,29 @@ app.post('/customer', (req, res) => {
             res.status(200).send({
                 success: true,
                 newid: result
+            });
+        }
+    });
+});
+// add address
+app.post('/customer/:id/address', (req, res) => {
+    const id = parseInt(req.params.id);
+    const addressname = req.body.AddressName;
+    const addressline = req.body.AddressLine;
+    const zipcode = req.body.Zip;
+    const country = req.body.Country;
+    //console.log(req.body);
+    db.addAddress(id, addressname, addressline, zipcode, country, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.status(200).send({
+                success: true
             });
         }
     });

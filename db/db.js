@@ -276,10 +276,11 @@ module.exports = {
             }
             else {
                 let addresses = [];
-                console.log(rows);
+                //console.log(rows);
                 rows.forEach((row) => {
                     addresses.push(row);
                 });
+                //console.log(addresses);
                 callback(null, addresses);
             }
         });
@@ -303,14 +304,16 @@ module.exports = {
     },
 
     // Add address ti customrer
-    addAddress: function (customer, addressline, addressname, zipcode, country, callback) {
-        const query = 'INSERT INTO address (customer, addressline, addressname,zip, country) VALUES (?,?,?,?,?)';
-        db.run(query, [customer, addressline, addressname, zipcode, country], (err) => {
+    addAddress: function (customer, addressname, addressline, zipcode, country, callback) {
+        const query = 'INSERT INTO address (customer, addressname, addressline, zip, country) VALUES (?,?,?,?,?)';
+        db.run(query, [customer, addressname, addressline, zipcode, country], (err, row) => {
             if (err) {
                 callback(err);
             }
+            else {
+                callback(null, null);
+            }
         });
-        callback(null, null);
     }
 
 
