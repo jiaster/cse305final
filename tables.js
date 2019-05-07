@@ -1,5 +1,3 @@
-
-
 const url = window.location.origin;
 var user = 0;
 var cart;
@@ -40,6 +38,16 @@ var carttable = new Tabulator("#cart", {
         });
     },
 });
+var cartmodal = new Tabulator("#cartmodal", {//cart in modal
+    height: 200,
+    layout: "fitColumns",
+    columns: [
+        { title: "Name", field: "Name", sorter: "string" },
+        { title: "Unit Price", field: "Price", sorter: "number" },
+        { title: "Quantity", field: "Quantity", sorter: "number" },
+        { title: "Total", field: "Total", sorter: "number" }
+    ]
+});
 var orderstable = new Tabulator("#orders", {
     height: 200,
     layout: "fitColumns", //fit columns to width of table (optional)
@@ -49,9 +57,40 @@ var orderstable = new Tabulator("#orders", {
         { title: "Total", field: "Total", sorter: "number" },
         { title: "Status", field: "Status", sorter: "string" }
     ],
-    rowClick: function (e, id, data, row) {
-        console.log(id);
+    rowClick: function (e, row) {
+        console.log(row);
+        orderitemsmodal.clearData();
+        $(`#ordersBox`).modal('toggle');
+        //console.log(row.getData().OrderID);
+        const orderItemsURL = `${url}/order/${row.getData().OrderID}`;
+        console.log(orderItemsURL);
+        fetch(orderItemsURL)
+            .then(data => { return data.json() })
+            .then(res => {
+                console.log(res);
+                //orderitemsmodal.setData(res.order);
+                res.order.forEach(item => {
+                    var getItemURL = `${url}/items/${item.Item}`;
+                    fetch(getItemURL)//get orders
+                        .then(data => { return data.json() })
+                        .then(res => {
+                            console.log(res);
+                            res["cart"][0].Total = (res["cart"][0].Price) * (res["cart"][0].Quantity);
+                            orderitemsmodal.addData(res["cart"][0]);
+                        })
+                });
+            });
     },
+});
+var orderitemsmodal = new Tabulator("#orderItems", {
+    height: 200,
+    layout: "fitColumns", //fit columns to width of table (optional)
+    columns: [ //Define Table Columns
+        { title: "Name", field: "Name", sorter: "string" },
+        { title: "Unit Price", field: "Price", sorter: "number" },
+        { title: "Quantity", field: "Quantity", sorter: "number" },
+        { title: "Total", field: "Total", sorter: "number" }
+    ]
 });
 
 var addressestable = new Tabulator("#addresses", {
@@ -63,8 +102,8 @@ var addressestable = new Tabulator("#addresses", {
         { title: "Zip Code", field: "Zip", sorter: "number" },
         { title: "Country", field: "Country", sorter: "string" }
     ],
-    rowClick: function (e, id, data, row) {
-        console.log(id);
+    rowClick: function (e, row) {
+        console.log(row);
     },
 });
 var paymentstable = new Tabulator("#payments", {
@@ -76,8 +115,8 @@ var paymentstable = new Tabulator("#payments", {
         { title: "Card", field: "Card", sorter: "string" },
         { title: "Card Expiry Date", field: "CardExpiry", sorter: "number" }
     ],
-    rowClick: function (e, id, data, row) {
-        console.log(id);
+    rowClick: function (e, row) {
+        console.log(row);
     },
 });
 function updateOrders() {
@@ -218,12 +257,12 @@ $('#checkout').on('click', (event) => {
     var addressid;
     var paymentid;
     addressestable.getData().forEach(address => {
-        if (address.AddressName === $(`#addressSelect`).val()) {
+        if (address.AddressName === $(`#addressSelect`).val()) {//get address id
             addressid = address.id;
         }
     });
     paymentstable.getData().forEach(payment => {
-        if (payment.Name === $(`#paymentSelect`).val()) {
+        if (payment.Name === $(`#paymentSelect`).val()) {//get payment id
             paymentid = payment.PaymentID;
         }
     });
@@ -237,19 +276,29 @@ $('#checkout').on('click', (event) => {
         address: addressid,
         items: items
     };
-    //console.log(data);
 
-    const addToCartURL = `${url}/order/${user}`;
-    fetch(addToCartURL, {
-        method: 'POST', // or 'PUT'
-        body: JSON.stringify(data), // data can be `string` or {object}!
+    const placeOrderURL = `${url}/order/${user}`;
+    fetch(placeOrderURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then(data => { return data.json() })
         .then(res => {
-            updateOrders();
+            updateOrders();//show new order
+            //empty cart
+            const deleteCart = `${url}/cart/${user}`;
+            fetch(deleteCart, {
+                method: 'DELETE'
+            })
+                .then(data => { return data.json() })
+                .then(res => {
+                    //refresh cart table
+                    carttable.clearData();
+                });
+
         });
 });
 // open checkout modal
@@ -269,6 +318,7 @@ $('#checkoutButton').on('click', (event) => {
         opt.innerHTML = payments[i].Name;
         $(`#paymentSelect`).append(opt);
     }
+    cartmodal.setData(carttable.getData());
 });
 //Change user info
 $('#changeUserInfoButton').on('click', (event) => {

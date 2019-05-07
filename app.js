@@ -166,23 +166,41 @@ app.post('/cart/:id', (req, res) => {
 app.delete('/cart/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const item = req.body.item;
-    console.log("delete to cart recieved");
     console.log(req.body);
-    db.deleteFromCart(id, item, (err, result) => {
-        if (err) {
-            console.log("err");
-            console.log(err);
-            res.status(400).send({
-                success: false
-            });
-        }
-        else {
-            res.status(200).send({
-                sucess: true
-            });
-        }
-    });
+    if (item === undefined) {//empty cart
+        console.log('delete cart of '+id);
+        db.deleteCart(id, (err, result) => {
+            if (err) {
+                console.log("err");
+                console.log(err);
+                res.status(400).send({
+                    success: false
+                });
+            }
+            else {
+                res.status(200).send({
+                    sucess: true
+                });
+            }
+        });
+    } else {
+        db.deleteFromCart(id, item, (err, result) => {
+            if (err) {
+                console.log("err");
+                console.log(err);
+                res.status(400).send({
+                    success: false
+                });
+            }
+            else {
+                res.status(200).send({
+                    sucess: true
+                });
+            }
+        });
+    }
 });
+
 // create new order
 app.post('/order/:id', (req, res) => {
     const customerid = parseInt(req.params.id);

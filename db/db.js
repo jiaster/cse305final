@@ -136,6 +136,19 @@ module.exports = {
             }
         });
     },
+    //delete all cart contents for customer
+    deleteCart: function (id, callback) {
+        const query = 'DELETE FROM cart WHERE customer = ?';
+        db.all(query, [id], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
+
     //create new order and resturns that new order's id
     createNewOrder: function (customer, total, payment, address, callback) {
         const query = 'INSERT INTO orders (customer,total,payment,address) VALUES (?,?,?,?)';
