@@ -32,6 +32,28 @@
         </form>
         <h1>Items:</h1>
         <p>Click item to add 1 to cart</p>
+        <div id="editItemBox" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Item ID: <p id="itemID"></p></p>
+                        <p>Name: <input id="itemName" type="text"></p>
+                        <p>Brand: <input id="itemBrand" type="text"></p>
+                        <p>Category: <input id="itemCategory" type="text"></p>
+                        <p>Price: <input id="itemPrice" type="text"></p>
+                        <p>Quantity: <input id="itemQuantity" type="text"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" id="editItem">Submit</button>
+                        <button type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
         <div id="itemstable">
         </div>
         <h1>Cart:</h1>

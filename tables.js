@@ -17,9 +17,15 @@ var itemstable = new Tabulator("#itemstable", {
     ],
     rowClick: (e, row) => {
         //console.log(row.getData());
-        addToCart(row.getData(), () => {
-            updateCart();
-        });
+        if (user != undefined) {
+            if (user != 'admin') {
+                addToCart(row.getData(), () => {
+                    updateCart();
+                });
+            } else {
+                editItem(row.getData());
+            }
+        }
     },
 });
 var carttable = new Tabulator("#cart", {
@@ -159,6 +165,13 @@ $('#changeUser').submit(() => {
 
         return false;
     } else {
+        console.log('logged in as employee')
+        $('#userid').text(user);
+        carttable.clearData();
+        orderstable.clearData();
+        addressestable.clearData();
+        paymentstable.clearData();
+
         return false;
     }
 });
@@ -427,6 +440,47 @@ $('#newpayment').on('click', (event) => {
         .then(data => { return data.json() })
         .then(res => {
             paymentstable.addData(data);
+        });
+});
+function editItem(item) {
+    console.log(item);
+    $(`#editItemBox`).modal('toggle');
+    $('#itemID').val(item.ItemID);
+    $('#itemName').val(item.Name);
+    $('#itemBrand').val(item.Brand);
+    $('#itemCategory').val(item.Category);
+    $('#itemPrice').val(item.Price);
+    $('#itemQuantity').val(item.Quantity);
+}
+//edit item modal submit
+$('#editItem').on('click', (event) => {
+    var id = $(`#itemID`).val();
+    var itemName = $('#itemName').val();
+    var brand = $('#itemBrand').val();
+    var category = $('#itemCategory').val();
+    var price = $('#itemPrice').val();
+    var quantity = $('#itemQuantity').val();
+    var data = {
+        itemID: id,
+        name: itemName,
+        brand: brand,
+        category: category,
+        price: price,
+        quantity: quantity
+    };
+
+    const ediItemURL = `${url}/items/${id}`;
+    fetch(ediItemURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(data => { return data.json() })
+        .then(res => {
+            updateItems();
+            //$(`#editItemBox`).modal('toggle');
         });
 });
 //update items table
