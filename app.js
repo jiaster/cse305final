@@ -274,6 +274,26 @@ app.get('/customer/orders/:id', (req, res) => {
         }
     });
 });
+//get id via username
+app.post('/customer', (req, res) => {
+    const username = req.body.username;
+    db.getCustomerID(username, (err, id) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        else {
+            res.status(200).send({
+                id: id
+            });
+        }
+    });
+});
+
+
 //get customer info
 app.get('/customer/:id', (req, res) => {
     const customerid = parseInt(req.params.id);
@@ -319,12 +339,13 @@ app.get('/customer/:id', (req, res) => {
 //edit customer info
 app.post('/customer/:id', (req, res) => {
     const customerid = parseInt(req.params.id);
+    const username = req.body.username;
     const firstName = req.body.firstname;
     const lastName = req.body.lastname;
     const email = req.body.email;
     const phone = req.body.phone;
     console.log(req.body)
-    db.editCustomer(customerid, firstName, lastName, email, phone, (err, result) => {
+    db.editCustomer(customerid, username, firstName, lastName, email, phone, (err, result) => {
         if (err) {
             console.log("err");
             console.log(err);
@@ -340,13 +361,14 @@ app.post('/customer/:id', (req, res) => {
     });
 });
 //add new customer
-app.post('/customer', (req, res) => {
+app.post('/newcustomer', (req, res) => {
+    const username = req.body.username;
     const firstName = req.body.firstname;
     const lastName = req.body.lastname;
     const email = req.body.email;
     const phone = req.body.phone;
-    console.log(req.body)
-    db.addCustomer(firstName, lastName, email, phone, (err, result) => {
+    console.log(req.body);
+    db.addCustomer(username, firstName, lastName, email, phone, (err, result) => {
         if (err) {
             console.log("err");
             console.log(err);
@@ -355,6 +377,7 @@ app.post('/customer', (req, res) => {
             });
         }
         else {
+            console.log(result);
             res.status(200).send({
                 success: true,
                 newid: result

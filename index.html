@@ -15,21 +15,57 @@
 <body translate="no">
     <div class="container">
         <form id="changeUser">
-            <p>User id: </p><input id="user" type="text">
+            <p>Username: </p><input id="user" type="text">
             <input type="submit" value="Log in">
         </form>
-        <p>Logged in as id:</p>
+        <p>Logged in as:</p>
         <p id="userid"></p>
-        <form id="changeCustomerInfo">
-            <p>First Name: <input id="firstName" type="text"></p>
-            <p>Last Name: <input id="lastName" type="text"></p>
-            <p>Email: <input id="email" type="text"></p>
-            <p>Phone: <input id="phone" type="text"></p>
-            <button id="changeUserInfoButton" type="button">Change</button>
-            <button id="registerButton" type="button">Register</button>
-            <p>Your new user id is :<p id="newid"></p>
-            </p>
-        </form>
+        <button id="registerButton" type="button" data-toggle="modal" data-target="#registerUser">Register</button>
+        <button id="changeUserInfoButton" type="button" data-toggle="modal" data-target="#editUser">Edit User
+            Info</button>
+        <div id="registerUser" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Username: <input id="newUsername" type="text"></p>
+                        <p>First Name: <input id="newFirstName" type="text"></p>
+                        <p>Last Name: <input id="newLastName" type="text"></p>
+                        <p>Email: <input id="newEmail" type="text"></p>
+                        <p>Phone: <input id="newPhone" type="text"></p>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" id="registerUserButton">Register</button>
+                        <button type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="editUser" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Username: <input id="username" type="text"></p>
+                        <p>First Name: <input id="firstName" type="text"></p>
+                        <p>Last Name: <input id="lastName" type="text"></p>
+                        <p>Email: <input id="email" type="text"></p>
+                        <p>Phone: <input id="phone" type="text"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" id="editUserButton">Edit Info</button>
+                        <button type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
         <h1>Items:</h1>
         <p>Click item to add 1 to cart</p>
         <div id="editItemBox" class="modal fade" role="dialog">
@@ -39,7 +75,8 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <p>Item ID: <p id="itemID"></p></p>
+                        <p>Item ID: <p id="itemID"></p>
+                        </p>
                         <p>Name: <input id="itemName" type="text"></p>
                         <p>Brand: <input id="itemBrand" type="text"></p>
                         <p>Category: <input id="itemCategory" type="text"></p>

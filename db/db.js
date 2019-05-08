@@ -236,9 +236,22 @@ module.exports = {
         });
     },
 
-    editCustomer: function (customerid, firstName, lastName, email, phone, callback) {
-        const query = 'UPDATE customer SET firstname = ?, lastname = ?, email = ?, phone = ? WHERE customerid = ?';
-        db.run(query, [firstName, lastName, email, phone, customerid], (err, row) => {
+    getCustomerID: function (username, callback) {
+        const query = 'SELECT CustomerID FROM customer WHERE username = ?';
+        db.get(query, [username], (err, row) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                console.log(row);
+                callback(null, row);
+            }
+        });
+    },
+
+    editCustomer: function (customerid, username, firstName, lastName, email, phone, callback) {
+        const query = 'UPDATE customer SET username = ?, firstname = ?, lastname = ?, email = ?, phone = ? WHERE customerid = ?';
+        db.run(query, [username, firstName, lastName, email, phone, customerid], (err, row) => {
             if (err) {
                 callback(err);
             }
@@ -248,10 +261,10 @@ module.exports = {
         });
     },
 
-    addCustomer: function (firstName, lastName, email, phone, callback) {
-        const query = 'INSERT INTO customer (firstName,lastName,email,phone) VALUES (?,?,?,?)';
+    addCustomer: function (username, firstName, lastName, email, phone, callback) {
+        const query = 'INSERT INTO customer (username,firstName,lastName,email,phone) VALUES (?,?,?,?,?)';
         const query2 = 'SELECT last_insert_rowid()';
-        db.run(query, [firstName, lastName, email, phone], (err, row) => {
+        db.run(query, [username, firstName, lastName, email, phone], (err, row) => {
             if (err) {
                 callback(err);
             }

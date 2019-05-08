@@ -138,30 +138,50 @@ function updateOrders() {
 
 $('#changeUser').submit(() => {
     user = $('#user').val();
-    console.log(/^\+?(0|[1-9]\d*)$/.test($('#user').val()));
-    if (/^\+?(0|[1-9]\d*)$/.test(user) == true) {//if integer
+    if (user != 'admin') {//if integer
         user = $('#user').val();
-        console.log(`user set to ${user}`);
-        $('#userid').text(user);
-        //changeUsers();//TODO
-        updateCart();
-        //calculate totals
-        updateOrders();
 
-        const getCustomerInfo = `${url}/customer/${user}`;
-        fetch(getCustomerInfo)//get orders
+        const getIDURL = `${url}/customer`;
+        var data = {
+            username: user
+        };
+        fetch(getIDURL, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
             .then(data => { return data.json() })
             .then(res => {
                 console.log(res);
-                $(firstName).val(res["customerinfo"].FirstName);
-                $(lastName).val(res["customerinfo"].LastName);
-                $(email).val(res["customerinfo"].Email);
-                $(phone).val(res["customerinfo"].Phone);
-                addressestable.setData(res["addresses"]);
-                paymentstable.setData(res["payments"]);
-                //orders = res["orders"];
-                //orderstable.setData(orders);
-            })
+                if ($.isEmptyObject(res)) {
+                    $('#userid').text('USERNAME NOT FOUND');
+                } else {
+                    $('#userid').text(user);
+                    user = res.id.CustomerID;
+                    const getCustomerInfo = `${url}/customer/${user}`;
+                    fetch(getCustomerInfo)//get orders
+                        .then(data => { return data.json() })
+                        .then(res => {
+                            console.log(`user set to ${user}`);
+                            updateCart();
+                            updateOrders();
+                            console.log(res);
+                            $(`#username`).val(res["customerinfo"].Username);
+                            $(`#firstName`).val(res["customerinfo"].FirstName);
+                            $(`#lastName`).val(res["customerinfo"].LastName);
+                            $(`#email`).val(res["customerinfo"].Email);
+                            $(`#phone`).val(res["customerinfo"].Phone);
+                            addressestable.setData(res["addresses"]);
+                            paymentstable.setData(res["payments"]);
+                            //orders = res["orders"];
+                            //orderstable.setData(orders);
+                        })
+                }
+            });
+
+
 
         return false;
     } else {
@@ -310,6 +330,7 @@ $('#checkout').on('click', (event) => {
                 .then(res => {
                     //refresh cart table
                     carttable.clearData();
+                    $(`#cartTotal`).text('0.00');
                 });
 
         });
@@ -334,12 +355,14 @@ $('#checkoutButton').on('click', (event) => {
     cartmodal.setData(carttable.getData());
 });
 //Change user info
-$('#changeUserInfoButton').on('click', (event) => {
+$('#editUserButton').on('click', (event) => {
+    var userName = $('#username').val();
     var firstName = $('#firstName').val();
     var lastName = $('#lastName').val();
     var email = $('#email').val();
     var phone = $('#phone').val();
     var data = {
+        username: userName,
         firstname: firstName,
         lastname: lastName,
         email: email,
@@ -356,23 +379,25 @@ $('#changeUserInfoButton').on('click', (event) => {
     })
         .then(data => { return data.json() })
         .then(res => {
-
+            $('#userid').text(userName);
         });
 });
 // register new user
-$('#registerButton').on('click', (event) => {
-    var firstName = $('#firstName').val();
-    var lastName = $('#lastName').val();
-    var email = $('#email').val();
-    var phone = $('#phone').val();
+$('#registerUserButton').on('click', (event) => {
+    var username = $('#newUsername').val();
+    var firstName = $('#newFirstName').val();
+    var lastName = $('#newLastName').val();
+    var email = $('#newEmail').val();
+    var phone = $('#newPhone').val();
     var data = {
+        username: username,
         firstname: firstName,
         lastname: lastName,
         email: email,
         phone: phone
     };
-
-    const newCustomerURL = `${url}/customer`;
+    console.log(data);
+    const newCustomerURL = `${url}/newcustomer`;
     fetch(newCustomerURL, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -383,7 +408,13 @@ $('#registerButton').on('click', (event) => {
         .then(data => { return data.json() })
         .then(res => {
             console.log(res);
-            $('#newid').text(res.newid)
+            $('#userid').text(username);
+            user=res.newid;
+            $(`#username`).val(username);
+            $(`#firstName`).val(firstName);
+            $(`#lastName`).val(lastName);
+            $(`#email`).val(email);
+            $(`#phone`).val(phone);
         });
 });
 //add new address
