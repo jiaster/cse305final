@@ -81,7 +81,8 @@ var orderstable = new Tabulator("#orders", {
                         .then(data => { return data.json() })
                         .then(res => {
                             console.log(res);
-                            res["cart"][0].Total = (res["cart"][0].Price) * (res["cart"][0].Quantity);
+                            res["cart"][0].Quantity = item.Quantity;
+                            res["cart"][0].Total = (res["cart"][0].Price) * (item.Quantity);
                             orderitemsmodal.addData(res["cart"][0]);
                         })
                 });
@@ -339,7 +340,7 @@ $('#checkout').on('click', (event) => {
         address: addressid,
         items: items
     };
-
+    console.log(data);
     const placeOrderURL = `${url}/order/${user}`;
     fetch(placeOrderURL, {
         method: 'POST',
