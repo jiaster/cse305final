@@ -57,6 +57,28 @@ app.get('/items/:id', (req, res) => {
         }
     });
 });
+//add item
+app.post('/items', (req, res) => {
+    console.log(req.body);
+    const name = req.body.name;
+    const brand = req.body.brand;
+    const category = req.body.category;
+    const price = req.body.price;
+    const quantity = req.body.quantity;
+    db.addItem(name, brand, category, price, quantity, (err, result) => {
+        if (err) {
+            console.log("err");
+            console.log(err);
+            res.status(400).send({
+                success: false
+            });
+        }
+        res.status(200).send({
+            success: true
+        });
+    });
+
+});
 
 // Modify item by id
 app.post('/items/:id', (req, res) => {

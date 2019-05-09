@@ -49,6 +49,18 @@ module.exports = {
             }
         });
     },
+    //add item
+    addItem: function (name, brand, category, price, quantity, callback) {
+        const addItemQuery = 'INSERT INTO item (name, brand, category, price, quantity) VALUES (?,?,?,?,?)';
+        db.all(addItemQuery, [name, brand, category, price, quantity], (err, rows) => {
+            if (err) {
+                callback(err);
+            }
+            else {
+                callback(null, null);
+            }
+        });
+    },
     //update item given ID
     updateItem: function (item, callback) {
         const updateItemQuery = 'UPDATE item SET category = ?, price = ?, quantity = ?, brand = ?, name = ? WHERE itemID = ?';

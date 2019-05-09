@@ -140,6 +140,7 @@ $('#changeUser').submit(() => {
     user = $('#user').val();
     if (user != 'admin') {//if integer
         user = $('#user').val();
+        $("#addItemButton").hide();
 
         const getIDURL = `${url}/customer`;
         var data = {
@@ -186,6 +187,7 @@ $('#changeUser').submit(() => {
         return false;
     } else {
         console.log('logged in as employee')
+        $("#addItemButton").show();
         $('#userid').text(user);
         carttable.clearData();
         orderstable.clearData();
@@ -285,6 +287,34 @@ function updateCartTotal() {
     console.log(total);
     $('#cartTotal').text(total.toFixed(2));
 };
+//add item
+$('#addItem').on('click', (event) => {
+    var itemname = $('#newItemName').val();
+    var itembrand = $('#newItemBrand').val();
+    var itemcategory = $('#newItemCategory').val();
+    var itemprice = $('#newItemPrice').val();
+    var itemquantity = $('#newItemQuantity').val();
+    var data = {
+        name: itemname,
+        brand: itembrand,
+        category: itemcategory,
+        price: itemprice,
+        quantity: itemquantity
+    };
+    console.log(data);
+    const addItemURL = `${url}/items`;
+    fetch(addItemURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(data => { return data.json() })
+        .then(res => {
+            updateItems();
+        });
+});
 //place order
 $('#checkout').on('click', (event) => {
     var addressid;

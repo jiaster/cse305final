@@ -68,6 +68,29 @@
         </div>
         <h1>Items:</h1>
         <p>Click item to add 1 to cart</p>
+        <button type="button" id="addItemButton" data-toggle="modal" data-target="#AddItemBox">Add New
+                Item</button>
+        <div id="AddItemBox" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Name: <input id="newItemName" type="text"></p>
+                            <p>Brand: <input id="newItemBrand" type="text"></p>
+                            <p>Category: <input id="newItemCategory" type="text"></p>
+                            <p>Price: <input id="newItemPrice" type="text"></p>
+                            <p>Quantity: <input id="newItemQuantity" type="text"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" data-dismiss="modal" id="addItem">Add Item</button>
+                            <button type="button" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
         <div id="editItemBox" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
